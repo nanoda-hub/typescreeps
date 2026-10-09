@@ -67,9 +67,40 @@ export function getStoreStructures(room: Room) {
     return extensions[0]
   }
 
+  // fill storage
+  let storages = room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_STORAGE)
+  if (storages.length > 0)
+    return storages[0]
+
   return null
 }
 
 export function getWithdrawStructures(room: Room) {
+  // get storage
+  let storages = room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_STORAGE)
+  if (storages.length > 0)
+    return storages[0]
 
+  // get source_mine container
+  let containerId = Object.values(room.memory.source_mine).flatMap(c => c.containerId ?? [])
+  if (containerId.length > 0)
+    return Game.getObjectById(containerId[0])
+
+  // get spawn
+  let spawns = my_room_information[room.name].spawnName.map((name) => Game.spawns[name]).sort(
+    (a, b) => a.store.getUsedCapacity(RESOURCE_ENERGY) - b.store.getUsedCapacity(RESOURCE_ENERGY)
+  )
+  if (spawns.length > 0) {
+    return spawns[0]
+  }
+
+  // get extension
+  let extensions = room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_EXTENSION).sort(
+    (a, b) => a.store.getUsedCapacity(RESOURCE_ENERGY) - b.store.getUsedCapacity(RESOURCE_ENERGY)
+  )
+  if (extensions.length > 0) {
+    return extensions[0]
+  }
+
+  return null
 }

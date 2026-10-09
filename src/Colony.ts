@@ -1,4 +1,5 @@
 import { Level1SourceMine } from "./Tasks/Level1SourceMine"
+import { StructureBuild } from "./Tasks/StructureBuild"
 
 export const Colony = (room: Room) => {
 
@@ -8,4 +9,6 @@ export const Colony = (room: Room) => {
   if (room.controller!.level === 1) {
     Level1SourceMine(room)
   }
+
+  StructureBuild(room)
 }

@@ -51,7 +51,6 @@ function creepManager(room: Room, source: Source) {
 function runTask(room: Room, source: Source) {
   if (room.memory.level_1_source_mine[source.id].workerName === null) return
   let creep = Game.creeps[room.memory.level_1_source_mine[source.id].workerName!]
-  if (creep === undefined) return
   if (creep.spawning) return
 
   if (creep.memory.status == 0) {

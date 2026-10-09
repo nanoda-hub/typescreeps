@@ -13,7 +13,7 @@ interface RoomMemory {
             workerName: string | null,
         }
     },
-    build_structure: {
+    structure_build: {
         targetsId: Array<Id<ConstructionSite>>,
         workersName: Array<string>,
     },
