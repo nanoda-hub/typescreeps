@@ -1,0 +1,30 @@
+{
+  "name": "typescreeps",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "local": "node deploy.js local",
+    "main": "node deploy.js main"
+  },
+  "devDependencies": {
+    "@bitpatty/ts-transformer-log-position": "^3.1.0",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@types/node": "^26.6.3",
+    "@types/screeps": "^3.4.0",
+    "fs-extra": "^11.4.1",
+    "rollup": "^4.63.5",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-typescript2": "^0.37.0",
+    "ts-patch": "^3.3.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "screeps-api": "^2.1.0"
+  }
+}

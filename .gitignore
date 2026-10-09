@@ -1,0 +1,5 @@
+node_modules
+dist
+
+.secret.json
+package-lock.json
