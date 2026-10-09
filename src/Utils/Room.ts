@@ -42,3 +42,34 @@ export function renewCreep(room: Room, creep: Creep) {
         creep.moveTo(spawn)
     }
 }
+
+export function getStoreStructures(room: Room) {
+  // fill container Controller Upgrader
+  if (room.memory.controller_upgrade.containerId != null && Game.getObjectById(room.memory.controller_upgrade.containerId) != null) {
+    let container = Game.getObjectById(room.memory.controller_upgrade.containerId)
+    if (container!.store.getFreeCapacity(RESOURCE_ENERGY) > 200)
+      return container!
+  }
+
+  // fill spawn
+  let spawns = my_room_information[room.name].spawnName.map((name) => Game.spawns[name]).sort(
+    (a, b) => a.store.getUsedCapacity(RESOURCE_ENERGY) - b.store.getUsedCapacity(RESOURCE_ENERGY)
+  )
+  if (spawns.length > 0) {
+    return spawns[0]
+  }
+
+  // fill extension
+  let extensions = room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_EXTENSION).sort(
+    (a, b) => a.store.getUsedCapacity(RESOURCE_ENERGY) - b.store.getUsedCapacity(RESOURCE_ENERGY)
+  )
+  if (extensions.length > 0) {
+    return extensions[0]
+  }
+
+  return null
+}
+
+export function getWithdrawStructures(room: Room) {
+
+}
