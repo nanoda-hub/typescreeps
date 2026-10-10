@@ -1,29 +1,29 @@
-
-
 interface RoomMemory {
     source_mine: {
         [sourceId: string]: {
-            minerName: string | null,
-            carrierName: string | null,
-            containerId: Id<StructureContainer> | null,
-        }
-    },
+            minerName: string | null;
+            containerId: Id<StructureContainer> | null;
+        };
+    };
     level_1_source_mine: {
         [sourceId: string]: {
-            workerName: string | null,
-        }
-    },
+            workerName: string | null;
+        };
+    };
     structure_build: {
-        targetsId: Array<Id<ConstructionSite>>,
-        workersName: Array<string>,
-    },
+        workersName: Array<string>;
+        targetId: Id<AnyStructure> | null;
+    };
     controller_upgrade: {
-        containerId: Id<StructureContainer> | null,
-        workerName: string | null,
-    }
+        containerId: Id<StructureContainer> | null;
+        workerName: string | null;
+    };
+    energy_carry: {
+        workersName: Array<string>;
+    };
 }
 
 interface CreepMemory {
-    status: number,
-    level: number,
+    status: number;
+    level: number;
 }

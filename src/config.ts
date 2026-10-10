@@ -1,4 +1,22 @@
-export const structure_limit = {
+export const structure_limit: {
+    [level: number]: {
+        STRUCTURE_CONTAINER: number;
+        STRUCTURE_SPAWN: number;
+        STRUCTURE_EXTENSION: number;
+        STRUCTURE_RAMPART: number;
+        STRUCTURE_WALL: number;
+        STRUCTURE_TOWER: number;
+        STRUCTURE_STORAGE: number;
+        STRUCTURE_LINK: number;
+        STRUCTURE_EXTRACTOR: number;
+        STRUCTURE_LAB: number;
+        STRUCTURE_TERMINAL: number;
+        STRUCTURE_FACTORY: number;
+        STRUCTURE_OBSERVER: number;
+        STRUCTURE_POWER_SPAWN: number;
+        STRUCTURE_NUKER: number;
+    };
+} = {
     1: {
         STRUCTURE_CONTAINER: 5,
         STRUCTURE_SPAWN: 1,
@@ -134,35 +152,70 @@ export const structure_limit = {
         STRUCTURE_OBSERVER: 1,
         STRUCTURE_POWER_SPAWN: 1,
         STRUCTURE_NUKER: 1,
-    }
-}
+    },
+};
 
 export const creep_format: {
     [level: number]: {
-        [role: string]: Array<BodyPartConstant>
-    }
+        [role: string]: Array<BodyPartConstant>;
+    };
 } = {
     1: {
-        miner: [...Array<BodyPartConstant>(2).fill(WORK), ...Array<BodyPartConstant>(2).fill(MOVE)],
-        carrier: [...Array<BodyPartConstant>(3).fill(CARRY), ...Array<BodyPartConstant>(3).fill(MOVE)],
-        worker: [...Array<BodyPartConstant>(1).fill(WORK), ...Array<BodyPartConstant>(1).fill(CARRY), ...Array<BodyPartConstant>(2).fill(MOVE)],
+        miner: [
+            ...Array<BodyPartConstant>(2).fill(WORK),
+            ...Array<BodyPartConstant>(2).fill(MOVE),
+        ],
+        carrier: [
+            ...Array<BodyPartConstant>(3).fill(CARRY),
+            ...Array<BodyPartConstant>(3).fill(MOVE),
+        ],
+        worker: [
+            ...Array<BodyPartConstant>(1).fill(WORK),
+            ...Array<BodyPartConstant>(1).fill(CARRY),
+            ...Array<BodyPartConstant>(2).fill(MOVE),
+        ],
     },
     2: {
-        miner: [...Array<BodyPartConstant>(3).fill(WORK), ...Array<BodyPartConstant>(3).fill(MOVE)],
-        carrier: [...Array<BodyPartConstant>(5).fill(CARRY), ...Array<BodyPartConstant>(5).fill(MOVE)],
-        worker: [...Array<BodyPartConstant>(2).fill(WORK), ...Array<BodyPartConstant>(2).fill(CARRY), ...Array<BodyPartConstant>(2).fill(MOVE)],
+        miner: [
+            ...Array<BodyPartConstant>(3).fill(WORK),
+            ...Array<BodyPartConstant>(3).fill(MOVE),
+        ],
+        carrier: [
+            ...Array<BodyPartConstant>(5).fill(CARRY),
+            ...Array<BodyPartConstant>(5).fill(MOVE),
+        ],
+        worker: [
+            ...Array<BodyPartConstant>(2).fill(WORK),
+            ...Array<BodyPartConstant>(2).fill(CARRY),
+            ...Array<BodyPartConstant>(2).fill(MOVE),
+        ],
     },
     3: {
-        miner: [...Array<BodyPartConstant>(5).fill(WORK), ...Array<BodyPartConstant>(5).fill(MOVE)],
-        carrier: [...Array<BodyPartConstant>(8).fill(CARRY), ...Array<BodyPartConstant>(8).fill(MOVE)],
-        worker: [...Array<BodyPartConstant>(4).fill(WORK), ...Array<BodyPartConstant>(4).fill(CARRY), ...Array<BodyPartConstant>(4).fill(MOVE)],
-    }
-}
+        miner: [
+            ...Array<BodyPartConstant>(5).fill(WORK),
+            ...Array<BodyPartConstant>(5).fill(MOVE),
+        ],
+        carrier: [
+            ...Array<BodyPartConstant>(8).fill(CARRY),
+            ...Array<BodyPartConstant>(8).fill(MOVE),
+        ],
+        worker: [
+            ...Array<BodyPartConstant>(4).fill(WORK),
+            ...Array<BodyPartConstant>(4).fill(CARRY),
+            ...Array<BodyPartConstant>(4).fill(MOVE),
+        ],
+    },
+};
 
-export const my_room_information: {[roomName: string]: {
-    spawnName: string[]
-}} = {
-    "sim": {
+export const my_room_information: {
+    [roomName: string]: {
+        spawnName: string[];
+    };
+} = {
+    // "sim": {
+    //     spawnName: ["Spawn1"],
+    // }
+    E25N53: {
         spawnName: ["Spawn1"],
-    }
-}
+    },
+};
