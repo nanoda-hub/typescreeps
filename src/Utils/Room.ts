@@ -36,22 +36,12 @@ export function spawnCreep(
     return false;
 }
 
-export function renewCreep(room: Room, creep: Creep) {
-    const spawn = Game.spawns[my_room_information[room.name].spawnName[0]];
-    if (spawn.renewCreep(creep) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(spawn);
-    }
-}
+
 
 export function getStoreStructures(room: Room) {
     // fill spawn
     let spawns = my_room_information[room.name].spawnName
-        .map((name) => Game.spawns[name])
-        .sort(
-            (a, b) =>
-                a.store.getUsedCapacity(RESOURCE_ENERGY) -
-                b.store.getUsedCapacity(RESOURCE_ENERGY),
-        );
+        .map((name) => Game.spawns[name]);
     if (
         spawns.length > 0 &&
         spawns[0].store.getFreeCapacity(RESOURCE_ENERGY) > 0
@@ -63,17 +53,18 @@ export function getStoreStructures(room: Room) {
     let extensions = room
         .find(FIND_STRUCTURES)
         .filter((s) => s.structureType == STRUCTURE_EXTENSION)
-        .sort(
-            (a, b) =>
-                a.store.getUsedCapacity(RESOURCE_ENERGY) -
-                b.store.getUsedCapacity(RESOURCE_ENERGY),
-        );
     if (extensions.length > 0) {
         for (const ext of extensions) {
             if (ext.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
                 return ext;
             }
         }
+    }
+
+    // fill tower
+    let towers = room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_TOWER)
+    if (towers.length > 0 && towers[0].store.getFreeCapacity(RESOURCE_ENERGY) > 50) {
+        return towers[0]
     }
 
     // fill container Controller Upgrader
@@ -84,26 +75,20 @@ export function getStoreStructures(room: Room) {
         let container = Game.getObjectById(
             room.memory.controller_upgrade.containerId,
         );
-        if (container!.store.getFreeCapacity(RESOURCE_ENERGY) > 200)
+        if (container!.store.getFreeCapacity(RESOURCE_ENERGY) > 250)
             return container!;
     }
-
-    // fill storage
-    if (
-        room.storage &&
-        room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 200
-    )
-        return room.storage;
 
     return null;
 }
 
 export function getWithdrawStructures(room: Room) {
+    let tombs = room.find(FIND_TOMBSTONES)
+    if (tombs.length > 0 && tombs[0].store.getUsedCapacity(RESOURCE_ENERGY) > 0)
+        return tombs[0]
+
     // get storage
-    if (
-        room.storage &&
-        room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 200
-    )
+    if (room.storage && room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 200)
         return room.storage;
 
     // get fullest source_mine container
@@ -121,7 +106,7 @@ export function getWithdrawStructures(room: Room) {
         }
     }
 
-    if (best && best.store.getUsedCapacity(RESOURCE_ENERGY) > 200) {
+    if (best && best.store.getUsedCapacity(RESOURCE_ENERGY) > 50) {
         return best;
     }
 
@@ -139,4 +124,12 @@ export function getRoomControllerLevel(room: Room): number {
     } else {
         return room.controller!.level;
     }
+}
+
+export function getTotalEnergy(room: Room) {
+    return Game.spawns[my_room_information[room.name].spawnName[0]].store.getUsedCapacity(RESOURCE_ENERGY) + room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_EXTENSION).reduce((sum, a) => sum + a.store.getUsedCapacity(RESOURCE_ENERGY), 0)
+}
+
+export function getMaxEnergy(room: Room) {
+    return Game.spawns[my_room_information[room.name].spawnName[0]].store.getCapacity(RESOURCE_ENERGY) + room.find(FIND_STRUCTURES).filter(s => s.structureType == STRUCTURE_EXTENSION).reduce((sum, a) => sum + a.store.getCapacity(RESOURCE_ENERGY), 0)
 }

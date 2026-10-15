@@ -1,19 +1,19 @@
 import { creep_format } from "@/config";
+import { renewCreep } from "@/Utils/Creep";
 import {
     getRoomControllerLevel,
     getWithdrawStructures,
-    renewCreep,
     spawnCreep,
 } from "@/Utils/Room";
 
-let build_number = 3;
+const builder_number = 2;
 
 export function StructureBuild(room: Room) {
     room.memory.structure_build ??= {
         workersName: Array<string>(0),
         targetId: null,
     };
-    room.memory.structure_build.targetId = null;
+
     creepManager(room);
     runTask(room);
 }
@@ -24,7 +24,7 @@ function creepManager(room: Room) {
         (name) => Game.creeps[name] !== undefined,
     );
 
-    if (room.memory.structure_build.workersName.length < build_number) {
+    if (room.memory.structure_build.workersName.length < builder_number) {
         const worker_name = `worker_${room.name}_${Game.time}`;
         if (
             spawnCreep(
@@ -75,28 +75,11 @@ function runTask(room: Room) {
             if (creep.memory.status == 0) {
                 if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
                     if (s === null) {
-                        if (
-                            creep.harvest(
-                                Game.getObjectById(
-                                    Object.keys(
-                                        room.memory.level_1_source_mine,
-                                    )[0],
-                                ) as Source,
-                            ) == ERR_NOT_IN_RANGE
-                        ) {
-                            creep.moveTo(
-                                Game.getObjectById(
-                                    Object.keys(
-                                        room.memory.level_1_source_mine,
-                                    )[0],
-                                ) as Source,
-                            );
+                        if (creep.harvest(Game.getObjectById(Object.keys(room.memory.source_mine)[0]) as Source) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(Game.getObjectById(Object.keys(room.memory.source_mine)[0]) as Source);
                         }
                     } else {
-                        if (
-                            creep.withdraw(s, RESOURCE_ENERGY) ==
-                            ERR_NOT_IN_RANGE
-                        ) {
+                        if (creep.withdraw(s, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(s);
                         }
                     }
@@ -118,67 +101,25 @@ function runTask(room: Room) {
             // creep.moveTo(25, 33)
         }
     } else {
-        if (room.memory.structure_build.targetId === null) {
-            let targets: AnyStructure[] = room
-                .find(FIND_STRUCTURES)
-                .filter(
-                    (s) =>
-                        (s.structureType == STRUCTURE_CONTAINER ||
-                            s.structureType == STRUCTURE_ROAD) &&
-                        s.hits / s.hitsMax < 0.05,
-                );
 
-            if (targets.length == 0) {
-                return;
-            }
-
-            room.memory.structure_build.targetId = targets[0].id;
-        }
-
-        if (room.memory.structure_build.targetId === null) {
-            return;
-        }
-
-        let target = Game.getObjectById(room.memory.structure_build.targetId);
-
-        if (target == null || target.hits / target.hitsMax > 0.9) {
-            room.memory.structure_build.targetId = null;
-            return;
-        }
 
         let creeps = room.memory.structure_build.workersName.map(
             (name) => Game.creeps[name],
         );
 
-        let s = getWithdrawStructures(room);
+
         for (const creep of creeps) {
             if (creep.spawning) continue;
 
             if (creep.memory.status == 0) {
                 if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                    let s = getWithdrawStructures(room);
                     if (s === null) {
-                        if (
-                            creep.harvest(
-                                Game.getObjectById(
-                                    Object.keys(
-                                        room.memory.level_1_source_mine,
-                                    )[0],
-                                ) as Source,
-                            ) == ERR_NOT_IN_RANGE
-                        ) {
-                            creep.moveTo(
-                                Game.getObjectById(
-                                    Object.keys(
-                                        room.memory.level_1_source_mine,
-                                    )[0],
-                                ) as Source,
-                            );
+                        if (creep.harvest(Game.getObjectById(Object.keys(room.memory.source_mine)[0]) as Source) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(Game.getObjectById(Object.keys(room.memory.source_mine)[0]) as Source);
                         }
                     } else {
-                        if (
-                            creep.withdraw(s, RESOURCE_ENERGY) ==
-                            ERR_NOT_IN_RANGE
-                        ) {
+                        if (creep.withdraw(s, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(s);
                         }
                     }
@@ -186,6 +127,26 @@ function runTask(room: Room) {
                     creep.memory.status = 1;
                 }
             } else if (creep.memory.status == 1) {
+                if (room.memory.structure_build.targetId === null) {
+                    let targets: AnyStructure[] = room
+                        .find(FIND_STRUCTURES)
+                        .filter(
+                            (s) => (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_ROAD) && s.hits / s.hitsMax < 0.9,
+                        ).sort((a, b) => a.hits / a.hitsMax - b.hits / b.hitsMax);
+
+                    if (targets.length == 0) {
+                        return;
+                    }
+
+                    room.memory.structure_build.targetId = targets[0].id;
+                }
+
+                let target = Game.getObjectById(room.memory.structure_build.targetId);
+
+                if (target === null || target.hits / target.hitsMax > 0.99) {
+                    room.memory.structure_build.targetId = null;
+                    return;
+                }
                 if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
                     if (creep.repair(target) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target);

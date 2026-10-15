@@ -210,12 +210,15 @@ export const creep_format: {
 export const my_room_information: {
     [roomName: string]: {
         spawnName: string[];
+        extensions: {x: number, y: number}[]
     };
 } = {
     // "sim": {
     //     spawnName: ["Spawn1"],
     // }
-    E25N53: {
+    "E25N53": {
         spawnName: ["Spawn1"],
+        extensions: [{x: 30, y: 33}, {x: 31, y: 33}, {x: 31, y: 32}, {x: 32, y: 32}, {x: 34, y: 33},
+            {x: 35, y: 32}, {x: 30, y: 32}, {x: 31, y: 31}, {x: 30, y: 29}, {x: 31, y: 28}]
     },
 };

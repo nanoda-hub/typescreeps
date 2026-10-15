@@ -1,8 +1,8 @@
 import { creep_format, my_room_information } from "@/config";
+import { renewCreep } from "@/Utils/Creep";
 import {
     getRoomControllerLevel,
     getStoreStructures,
-    renewCreep,
     spawnCreep,
 } from "@/Utils/Room";
 
@@ -15,7 +15,6 @@ export function Level1SourceMine(room: Room) {
         };
         creepManager(room, source);
         runTask(room, source);
-        break;
     }
 }
 
@@ -67,9 +66,18 @@ function runTask(room: Room, source: Source) {
 
     if (creep.memory.status == 0) {
         if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
+
+            let resources = room.find(FIND_DROPPED_RESOURCES)
+            if (resources.length > 0) {
+                if (creep.pickup(resources[0]) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(resources[0])
+                }
+            } else {
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source);
+                }
             }
+
         } else {
             creep.memory.status = 1;
         }

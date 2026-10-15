@@ -1,4 +1,5 @@
 import { creep_format, my_room_information } from "@/config";
+import { renewCreep } from "@/Utils/Creep";
 import { getRoomControllerLevel, spawnCreep } from "@/Utils/Room";
 
 export function SourceMine(room: Room) {
@@ -8,9 +9,13 @@ export function SourceMine(room: Room) {
         room.memory.source_mine[source.id] ??= {
             minerName: null,
             containerId: null,
+            carrierName: null,
         };
+        room.memory.source_mine[source.id].carrierName ??= null;
         creepManager(room, source);
         runTask(room, source);
+        carrierManager(room, source);
+        carrierRun(room, source);
     }
 }
 
@@ -91,26 +96,64 @@ function creepManager(room: Room, source: Source) {
     }
 }
 
-function runTask(room: Room, source: Source) {
-    if (room.memory.source_mine[source.id].minerName === null) {
-        return;
-    }
-    let creep = Game.creeps[room.memory.source_mine[source.id].minerName!];
-    if (room.memory.source_mine[source.id].containerId === null) {
+function carrierManager(room: Room, source: Source) {
+    if (room.memory.source_mine[source.id].carrierName === null) {
+        const creep_name = `carrier_${room.name}_${Game.time}`;
+        if (spawnCreep(
+                room,
+                creep_format[getRoomControllerLevel(room)].carrier,
+                creep_name,
+                {
+                    memory: {
+                        status: 0,
+                        level: getRoomControllerLevel(room),
+                    },
+                },
+            )
+        ) {
+            room.memory.source_mine[source.id].carrierName = creep_name;
+        }
         return;
     }
 
-    let target = Game.getObjectById(
-        room.memory.source_mine[source.id].containerId!,
-    );
-    if (target === null) {
-        room.memory.source_mine[source.id].containerId = null;
+    let creep = Game.creeps[room.memory.source_mine[source.id].carrierName!];
+    if (creep === undefined) {
+        room.memory.source_mine[source.id].carrierName = null;
         return;
     }
 
     if (creep.spawning) return;
 
+    if (creep.ticksToLive! < 150) {
+        creep.memory.status = 2;
+    }
+
+    if (creep.memory.status == 2 && creep.ticksToLive! > 1350) {
+        creep.memory.status = 0;
+    }
+}
+
+function runTask(room: Room, source: Source) {
+    if (room.memory.source_mine[source.id].minerName === null) {
+        return;
+    }
+    let creep = Game.creeps[room.memory.source_mine[source.id].minerName!];
+
+
+    if (creep.spawning) return;
+
     if (creep.memory.status == 0) {
+        if (room.memory.source_mine[source.id].containerId === null) {
+            return;
+        }
+
+        let target = Game.getObjectById(
+            room.memory.source_mine[source.id].containerId!,
+        );
+        if (target === null) {
+            room.memory.source_mine[source.id].containerId = null;
+            return;
+        }
         let container_pos = target.pos;
         let creep_pos = creep.pos;
 
@@ -119,7 +162,52 @@ function runTask(room: Room, source: Source) {
         } else {
             creep.moveTo(container_pos);
         }
-    } else {
+    } else if (creep.memory.status == 1) {
         creep.harvest(source);
+    } else if (creep.memory.status == 2) {
+        renewCreep(room, creep)
+    }
+}
+
+function carrierRun(room: Room, source: Source) {
+    if (room.memory.source_mine[source.id].carrierName === null) {
+        return;
+    }
+    let creep = Game.creeps[room.memory.source_mine[source.id].carrierName!];
+
+
+    if (creep.spawning) return;
+
+    if (creep.memory.status == 0) {
+        if (room.memory.source_mine[source.id].containerId === null) {
+            return;
+        }
+
+        let target = Game.getObjectById(
+            room.memory.source_mine[source.id].containerId!,
+        );
+        if (target === null) {
+            room.memory.source_mine[source.id].containerId = null;
+            return;
+        }
+
+        if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+            if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target)
+            }
+        } else {
+            creep.memory.status = 1
+        }
+
+    } else if (creep.memory.status == 1) {
+        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+            if (creep.transfer(room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(room.storage!);
+            }
+        } else {
+            creep.memory.status = 0
+        }
+    } else if (creep.memory.status == 2) {
+        renewCreep(room, creep)
     }
 }

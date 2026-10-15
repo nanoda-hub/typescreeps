@@ -1,9 +1,9 @@
 import { creep_format } from "@/config";
+import { renewCreep } from "@/Utils/Creep";
 import {
     getRoomControllerLevel,
     getStoreStructures,
     getWithdrawStructures,
-    renewCreep,
     spawnCreep,
 } from "@/Utils/Room";
 
@@ -66,13 +66,21 @@ function runTask(room: Room) {
         if (creep.spawning) continue;
         if (creep.memory.status == 0) {
             if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-                let s = getWithdrawStructures(room);
-                if (s === null) {
-                    return;
+                let resources = room.find(FIND_DROPPED_RESOURCES)
+                if (resources.length > 0) {
+                    if (creep.pickup(resources[0]) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(resources[0])
+                    }
+                } else {
+                    let s = getWithdrawStructures(room);
+                    if (s === null) {
+                        continue;
+                    }
+                    if (creep.withdraw(s, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(s);
+                    }
                 }
-                if (creep.withdraw(s, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(s);
-                }
+
             } else {
                 creep.memory.status = 1;
             }
@@ -80,7 +88,7 @@ function runTask(room: Room) {
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
                 let s = getStoreStructures(room);
                 if (s === null) {
-                    return;
+                    continue;
                 }
                 if (creep.transfer(s, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(s);
